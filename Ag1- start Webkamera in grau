@@ -1,0 +1,43 @@
+# Anaconda Prompt:
+$conda env create −f cv_environment . yml               # importieren alle benötige Bibliotheken in Python
+$conda activate cv                                      # aktivieren cv in Anaconda  ---> zum diaktiviere: conda diactivate
+
+$ python
+>>> import cv2
+>>> import torch
+>>>import sklearn
+>>> import matplotlieb
+>>> sift = cv2.SIFT_create()
+
+###########################################################################################
+########################################### Aufgabe 1 #####################################
+###########################################################################################
+# Python-umgebung:
+import numpy as np
+import cv2
+
+
+cap = cv2.VideoCapture(1)
+sift = cv2.SIFT_create()
+blur_flag=False
+
+while(True):
+
+    ret, frame = cap.read()
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    if cv2.waitKey(100) & 0xFF == ord('q'):
+        break
+    if cv2.waitKey(100) == ord('b'):
+        print("BLUR")
+        blur_flag = not blur_flag
+
+    if blur_flag:
+        kernel = np.ones((7, 7), np.float32)/49
+        gray = cv2.filter2D(gray, -1, kernel)
+
+    cv2.imshow('fram', gray)
+
+cap.release()
+cv2.destroyAllWindows()
