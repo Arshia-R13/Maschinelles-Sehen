@@ -20,17 +20,22 @@ f) Postverarbeitung: Nach der Erkennung und Klassifizierung --> weitere Verarbei
 "scikit-learn" für klassisches maschinelles Lernen
 "Tensorflow" und "Keras" für Deep Learning
 
-
-2) Image Representation
-
-3) DCT Coding (JPEG Compression)
-
-4) Image processing (Convolution und k-means)
   OpenCV steht für "Open Source Computer Vision Library" und ist eine Programmbibliothek, 
   die häufig in Python verwendet wird, um Bildverarbeitungsaufgaben durchzuführen. 
   Mit OpenCV können Entwickler verschiedene Bildverarbeitungsaufgaben wie Objekterkennung, Gesichtserkennung, 
   Bildfilterung, Objektverfolgung und vieles mehr durchführen. Es wird oft in Anwendungen wie Bildverarbeitung, 
   maschinelles Sehen, Robotik und Videoanalyse eingesetzt.
+
+2) Image Representation
+  Vektor, Matrix, Graph, Funktion
+    LAB-Raum : diffs correspend more naturally to human
+    Graph Cut und CRF(Conditional Random Fiels)
+    Fourier Transfomation (Ortraum in Frequenzenraum)
+3) DCT Coding (JPEG Compression)
+  DCT und IDCT : Discrate Cosine Transformation und Inverse Discrate Cosine Transformation
+
+4) Image processing (Convolution und k-means)
+  
 
 5) Image Gradients
 
