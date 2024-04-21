@@ -20,7 +20,8 @@ f) Postverarbeitung: Nach der Erkennung und Klassifizierung --> weitere Verarbei
 "scikit-learn" für klassisches maschinelles Lernen
 "Tensorflow" und "Keras" für Deep Learning
 
-  OpenCV steht für "Open Source Computer Vision Library" und ist eine Programmbibliothek, 
+OpenCV:
+  steht für "Open Source Computer Vision Library" und ist eine Programmbibliothek, 
   die häufig in Python verwendet wird, um Bildverarbeitungsaufgaben durchzuführen. 
   Mit OpenCV können Entwickler verschiedene Bildverarbeitungsaufgaben wie Objekterkennung, Gesichtserkennung, 
   Bildfilterung, Objektverfolgung und vieles mehr durchführen. Es wird oft in Anwendungen wie Bildverarbeitung, 
@@ -35,8 +36,41 @@ f) Postverarbeitung: Nach der Erkennung und Klassifizierung --> weitere Verarbei
   DCT und IDCT : Discrate Cosine Transformation und Inverse Discrate Cosine Transformation
 
 4) Image processing (Convolution und k-means)
-  
+  In der Bildverarbeitung bezieht sich Faltung oder Convolution auf eine mathematische Operation, bei der ein Bild mit einem sogenannten Faltungskern (auch Filter genannt) durchlaufen wird. Dieser Kern ist eine kleine Matrix von Zahlen. Bei der Faltung wird jeder Pixel im Bild mit dem Faltungskern multipliziert und die Ergebnisse aufsummiert. Dieser Vorgang wird für jeden Pixel im Bild wiederholt, wobei der Faltungskern über das gesamte Bild verschoben wird.
+
+  Die Convolution(Faltung):
+    wird oft zur Filterung von Bildern verwendet, um beispielsweise Rauschen zu reduzieren, Kanten zu erkennen oder bestimmte Merkmale hervorzuheben. 
+    Sie wird auch in der Bildklassifizierung und Objekterkennung in der Computer Vision eingesetzt, um Merkmale zu extrahieren und Muster zu identifizieren.
+
+  K-Means:
+    ein Clustering-Algorithmus ist, der verwendet wird, um Daten in Gruppen zu segmentieren, 
+    basierend auf ihren Merkmalen oder Attributen. Der Algorithmus funktioniert, indem er zunächst zufällige "Clusterzentren" auswählt 
+    und dann die Datenpunkte so zuweist, dass sie dem nächstgelegenen Clusterzentrum entsprechen. Anschließend werden die Clusterzentren aktualisiert,
+    indem der Durchschnitt der zu ihm gehörenden Datenpunkte berechnet wird. Dieser Prozess wird iterativ wiederholt, bis eine Konvergenz erreicht ist 
+    oder ein vordefiniertes Kriterium erfüllt ist. 
+    K-Means wird für verschiedene Anwendungen verwendet:
+    Bildsegmentierung: Trennen von Bildern in verschiedene Bereiche oder Objekte basierend auf ihren Farben oder Merkmalen.
+    Kundenclustering: Gruppierung von Kunden in verschiedene Segmente basierend auf ihrem Kaufverhalten oder ihren Eigenschaften.
+    Mustererkennung: Identifizierung von Gruppen von Mustern oder Trends in großen Datenmengen.
+    Anomalieerkennung: Identifizierung von Ausreißern oder ungewöhnlichen Mustern in Daten.
+    Der K-Means-Algorithmus ist ein wichtiges Werkzeug im Bereich des maschinellen Lernens und der Datenanalyse.
+
 
 5) Image Gradients
+  Gradient:
+    In der Bildverarbeitung bezieht sich der Gradient auf die Veränderung der Intensität eines Bildes in verschiedenen Richtungen. 
+    Genauer gesagt misst der Gradient die Änderung der Intensität entlang der x- und y-Achse des Bildes. 
+    
+  Die Magnitude des Gradienten(sqrt(Gx^2 + Gy^2))
+    ist einfach die Länge dieses Vektors und gibt an, wie stark sich die Intensität ändert.
+    Die Magnitude des Gradienten wird häufig verwendet, um Kanten in Bildern zu erkennen, da starke Änderungen der Intensität oft 
+    auf Objektgrenzen hinweisen. Es ist ein wichtiger Schritt in vielen Bildverarbeitungsanwendungen wie Kantenerkennung, 
+    Objekterkennung und Bildsegmentierung.
+
+  Winkel(Angle):
+    Der Winkel (Angle) im Kontext des Gradienten wird oft verwendet, um die Richtung der größten Intensitätsänderung in einem Bild zu beschreiben. 
+    Es zeigt die Orientierung der Kanten oder Strukturen im Bild an. In Anwendungen wie der Kantenerkennung kann der Winkel verwendet werden, 
+    um die Ausrichtung der Kanten zu bestimmen, was für die nachfolgende Analyse oder Verarbeitung wichtig sein kann.
+
 
 6) Image Formation
