@@ -1,0 +1,77 @@
+
+import numpy as np
+
+###################################################################################
+"""
+# a) Erzeugen Sie einen Vektor mit Ganzahl-Werten von 10 bis 49
+vek = np.arange(10, 50)
+print("\na) ", vek)
+"""
+####################################################################################
+"""
+# b) Umdrehen Sie die Werte des Vektors
+rev_vek = vek[::-1]
+print("\nb) ", rev_vek)
+"""
+####################################################################################
+"""
+# c) Erzeugen eine 4x4 Matrix mit den Werte 0 bis 15 (links oben rechts unten)
+matrix = np.arange(16).reshape(4, 4)
+print("\nc) ", matrix)
+"""
+####################################################################################
+"""
+# d) Erzeugen eine 8x8 Matrix mit Zufallswerte und finde deren Maximum und Minimum und
+#       normalisieren Sie die Werte (sodass alle Werte zwischen 0 und 1 liegen -
+#       ein Wert wird 1 (max) sein und einer 0 (min)).
+
+Ant2 = np.random.randint(0, 100, size=(8, 8))
+print("\nd) ", Ant2)
+A_max, A_min = Ant2.max(), Ant2.min()
+NAnt = (Ant2 - A_min) / (A_max-A_min)
+# print("\nMax= ", A_max, "\nMin= ", A_min, "\nNormalization: \n", NAnt)
+print("\nMax= ", A_max, "\nMin= ", A_min, "\nNormalization: \n", np.round(NAnt, 2))
+"""
+####################################################################################
+"""
+# e) (*) Multiplizieren Sie eine 4x3 Matrix mit einer 3x2 Matrix
+Mat1 = np.random.randint(10, size=(4, 3))
+Mat2 = np.random.randint(10, size=(3, 2))
+print("e)\n","Erste Matrix:\n", Mat1, "\nZwiete Matrix:\n", Mat2, "\nMultipikation:\n", Mat1 @ Mat2)
+"""
+###################################################################################################
+"""
+# f) Boolesche Indizierung: Erstellen Sie ein Numpy-Array mit Werten von 0 bis 10.
+# Erstellen Sie ein neues Array, das nur die Werte größer als 5 aus dem ursprünglichen Array enthält.
+# Tipp: Erforschen Sie boolesche oder "Masken"-Index-Arrays in Numpy.
+antf = np.arange(10)
+af = antf > 5
+AntF = antf[af]
+print("f)\nErste: ", antf, "\nZweite: ", AntF)
+"""
+####################################################################################################
+"""
+# g) Erstellen Sie eine Matrix [5x5] mit den Einträgen 1-25 (von oben links bis unten rechts)
+# und schneiden Sie eine Untermatrix mit den Einträgen 12, 13, 17 und 18.
+antg = np.arange(1, 26).reshape(5, 5)
+AntG = antg[2:4, 1:3]
+print("g)\nOrg_Matrix:\n", antg, "\nUntermatrix:\n", AntG)
+"""
+####################################################################################################
+"""
+# h) Erzeugen Sie ein 1D Array mit den Werte von 0 bis 20 und negieren Sie Werte zwischen 8
+# und 16 nachträglich.
+AntH = np.arange(21)
+b =  -AntH[8:17]
+AntH[8:17] = b
+print("h)\n", AntH)
+"""
+#####################################################################################################
+#"""
+# i) Summieren Sie alle Werte in einem Array.
+anti = np.random.randint(20, size=(1, 15))
+#anti = np.arange(15)
+AntI = anti.sum()
+print("i) \n", "Array:\n", anti, "\nSumme:\n", AntI)
+#"""
+#####################################################################################################
