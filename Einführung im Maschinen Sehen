@@ -1,0 +1,37 @@
+Maschines Sehen ----- Computer Vision
+1) die Bildverarbeitungspipline ----- Image Processing Pipline
+  Die Bildverarbeitungspipeline im maschinen Sehen bezieht sich auf den Prozess der Verarbeitung von Bilddaten durch eine Reihe von Schritten 
+  oder Operationen, um bestimmte Aufgaben zu erfüllen, wie z.B. Objekterkennung, Klassifizierung, Segmentierung oder Merkmalsextraktion. 
+  Hier ist eine typische Abfolge von Schritten, die in einer Bildverarbeitungspipeline durchgeführt werden:
+a) Bildaufnahme: erste Schritt ---> das Bild von einer Kamera oder einem anderen Erfassungsgerät aufgenommen wird.
+b) Vorverarbeitung: verschiedene Vorverarbeitungstechniken ----> das Bild für die nachfolgenden Analysen vorzubereiten. 
+    typischerweise Operationen wie Rauschunterdrückung, Skalierung, Kontrastanpassung und Schärfung.
+c) Merkmalsextraktion: Merkmale oder Eigenschaften aus dem Bild ---> die für die spätere Analyse relevant sind. 
+    die Erkennung von Kanten, Ecken, Texturen oder anderen charakteristischen Mustern
+d) Segmentierung: das Bild in verschiedene Regionen oder Objekte unterteilt ---> Konzentration Analyse auf bestimmte Bereiche 
+    durch Verfahren wie Schwellenwertbildung, Clusterbildung oder Konturverfolgung
+e) Objekterkennung und -klassifizierung: 
+  Basierend auf den extrahierten Merkmalen und Segmentierungsergebnissen werden Objekte im Bild erkannt und klassifiziert
+  mithilfe von Machine-Learning-Algorithmen wie Convolutional Neural Networks (CNNs), auf Trainingsdaten trainiert --> Erkennkung bestimmte Objekte/Klassen
+f) Postverarbeitung: Nach der Erkennung und Klassifizierung --> weitere Verarbeitungsschritte ---> um die Ergebnisse zu verbessern oder zu verfeinern. 
+  z.B. die Filterung von falsch positiven Ergebnissen / Fusionierung von Informationen aus verschiedenen Quellen / Objektverfolgung über mehrere Bilder
+
+"scipy.ndimage" und "opencv" für verschiedene Bildverarbeitungsaufgaben
+"scikit-learn" für klassisches maschinelles Lernen
+"Tensorflow" und "Keras" für Deep Learning
+
+
+2) Image Representation
+
+3) DCT Coding (JPEG Compression)
+
+4) Image processing (Convolution und k-means)
+  OpenCV steht für "Open Source Computer Vision Library" und ist eine Programmbibliothek, 
+  die häufig in Python verwendet wird, um Bildverarbeitungsaufgaben durchzuführen. 
+  Mit OpenCV können Entwickler verschiedene Bildverarbeitungsaufgaben wie Objekterkennung, Gesichtserkennung, 
+  Bildfilterung, Objektverfolgung und vieles mehr durchführen. Es wird oft in Anwendungen wie Bildverarbeitung, 
+  maschinelles Sehen, Robotik und Videoanalyse eingesetzt.
+
+5) Image Gradients
+
+6) Image Formation
