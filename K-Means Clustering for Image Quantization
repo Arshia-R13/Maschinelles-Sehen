@@ -1,0 +1,157 @@
+
+# 1 : import Libraries
+import numpy as np
+import cv2
+from typing import Tuple
+from sklearn.cluster import KMeans
+
+
+# 2) intialize:
+def initialize_clusters(img: np.ndarray, num_clusters: int) -> np.ndarray:
+
+    #print(img.shape)                                    # (640, 800, 3)
+
+    # reshape into a 2-D Array:
+    reshaped_img = img.reshape((-1, img.shape[-1]))     # (640, 800, 3) --> (512000, 3)
+    #print(reshaped_img.shape)                           # (512000, 3)
+
+    # Randomly select pixels
+    indices = np.random.choice(reshaped_img.shape[0], num_clusters, replace=False)
+    #print(indices)                                      # z.B. [122498 321094 250012 409032]
+
+    # initial cluster centers
+    initial_centers = reshaped_img[indices]
+    #print(initial_centers)                             #  z.B. [[130 131 134];
+                                                        #        [229 233 234];
+                                                        #        [254 252 254];
+                                                        #        [121 122 117]]
+    # Convert the initial centers to float32
+    initial_centers = initial_centers.astype(np.float32)
+    #print(initial_centers)                             #  z.B. [[130. 131. 134.];
+                                                        #        [229. 233. 234.];
+                                                        #        [254. 252. 254.];
+                                                        #        [121. 122. 117.]]
+    return initial_centers
+
+    ## NOTE !!!!!!!!!
+    ## To get full points you - ADDITIONALLY - have to develop your own init method. Please read the assignment!
+    ## It should work with both init methods.
+
+# 3) assign:
+def assign_clusters(img: np.ndarray, cluster_centers: np.ndarray) -> Tuple[np.ndarray, np.ndarray, float]:
+
+    # Compute distances per pixel
+    distances = np.linalg.norm(img[:, :, np.newaxis] - cluster_centers, axis=3)
+    # distances2 = np.linalg.norm(img[:, :, np.newaxis, :] - cluster_centers, axis=3)
+    # print("dis:\n", distances)
+
+    # Find closest cluster center for each pixel
+    closest_clusters = np.argmin(distances, axis=2)
+    # print(closest_clusters)
+
+    # Update image with updated colors
+    updated_img = cluster_centers[closest_clusters]
+    # Convert update_image into uint8
+    updated_img = updated_img.astype(np.uint8)
+    # print(updated_img)
+
+    # Compute overall distance
+    overall_distance = np.sum(np.min(distances, axis=2))
+    # print(overall_distance)
+
+    return updated_img, closest_clusters, overall_distance
+
+
+# 4) update:
+def update_cluster_centers(img: np.ndarray, cluster_assignments: np.ndarray, num_clusters: int) -> np.ndarray:
+    # Initialize an array to store the updated cluster centers
+    updated_centers = np.zeros((num_clusters, img.shape[2]), dtype=np.float32)
+    #print(updated_centers)
+
+    # Iterate over each cluster
+    for cluster_index in range(num_clusters):
+        # Find the pixels assigned to the current cluster
+        assigned_pixels = img[cluster_assignments == cluster_index]
+
+        # Calculate the mean of the assigned pixels along each channel (RGB)
+        if assigned_pixels.shape[0] > 0:
+            mean_color = np.mean(assigned_pixels, axis=0)
+        else:
+            # If no pixels are assigned to the cluster, keep the current center unchanged
+            mean_color = updated_centers[cluster_index]
+
+        # Update the cluster center with the mean color
+        updated_centers[cluster_index] = mean_color
+    updated_centers = updated_centers.astype(np.uint8)
+    #print(updated_centers)
+    return updated_centers
+
+# 5) KMeans:
+def kmeans_clustering(img: np.ndarray, num_clusters: int = 4, max_iterations: int = 100,
+                      tolerance: float = 0.01) -> np.ndarray:
+    # Initialize clusters
+    cluster_centers = initialize_clusters(img, num_clusters)
+
+    # Initialize variables for tracking convergence
+    prev_centers = np.copy(cluster_centers)
+    error_change = float('inf')
+    iteration = 0
+
+    # Assign clusters
+    # Assign clusters, this gives you a quantized image
+    updated_img, cluster_assignments, overall_distances = assign_clusters(img, cluster_centers)
+
+    # Main loop for K-means clustering
+    while iteration < max_iterations and error_change > tolerance:
+        # Assign clusters
+        # Assign clusters, this gives you a quantized image
+        #updated_img, cluster_assignments, overall_distances = assign_clusters(img, cluster_centers)
+
+        # Update cluster centers
+        new_cluster_centers = update_cluster_centers(img, cluster_assignments, num_clusters)
+
+        # Calculate error rate of change
+        #error_change = np.linalg.norm(new_cluster_centers - prev_centers) / np.linalg.norm(prev_centers)
+        error_change = np.linalg.norm((new_cluster_centers - prev_centers) / (prev_centers))
+        print("error_change: ", error_change)
+        #print("\tolerance: ", tolerance)
+
+        # Update previous centers
+        prev_centers = np.copy(new_cluster_centers)
+
+        # Update iteration count
+        iteration += 1
+        #print("iter: ", iteration)
+
+    # Quantize image using final cluster centers
+    quantized_img = cluster_centers[cluster_assignments]
+    quantized_img = quantized_img.astype(np.uint8)
+    return quantized_img
+
+
+# 6) load und process:
+def load_and_process_image(file_path: str, scaling_factor: float = 0.5) -> np.ndarray:
+
+    image = cv2.imread(file_path)
+
+    # Note: the scaling helps to do faster computation :)
+    image = cv2.resize(image, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+    return image
+
+
+# 7) main:
+def main():
+    file_path = './graffiti.png'
+    num_clusters = 4
+
+    img = load_and_process_image(file_path)
+    segmented_img = kmeans_clustering(img, num_clusters)
+
+    cv2.imshow("Original", img)
+    cv2.imshow("Color-based Segmentation Kmeans-Clustering", segmented_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    main()
