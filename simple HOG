@@ -1,0 +1,103 @@
+
+# 0) import the required libraries:
+import numpy as np
+import cv2
+import math
+import matplotlib
+import glob
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
+
+# 1) function Histogram plotting:
+def plot_histogram(hist, bins):
+    width = 0.7 * (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, hist, align='center', width=width)
+    plt.show()
+
+# 2) function HOG descriptor calculation:
+def compute_simple_hog(imgcolor, keypoints):
+
+    # convert color to gray image and extract feature in gray
+    img = cv2.cvtColor(imgcolor, cv2.COLOR_BGR2GRAY)
+    # compute x and y gradients (sobel kernel size 5)
+    grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=5)
+    grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=5)
+
+    # compute magnitude and angle of the gradients
+    magnitude = cv2.magnitude(grad_x, grad_y)
+    angle = cv2.phase(grad_x, grad_y, angleInDegrees=True)
+
+    # go through all keypoints and and compute feature vector
+    descr = np.zeros((len(keypoints), 8), np.float32)
+    count = 0
+    for kp in keypoints:
+        # print kp.pt, kp.size
+        x, y = int(kp.pt[0]), int(kp.pt[1])
+        size = int(kp.size) // 2
+
+        # extract angle in keypoint sub window
+        sub_angle = angle[y - size:y + size + 1, x - size:x + size + 1]
+
+        # extract gradient magnitude in keypoint subwindow
+        sub_magnitude = magnitude[y - size:y + size + 1, x - size:x + size + 1]
+
+        # create histogram of angle in subwindow BUT only where magnitude of gradients is non zero!
+        # Why? Find an answer to that question
+        """
+        Bei der Erstellung eines Histogramms orientierter Gradienten (HOG) ist es wichtig, 
+            nur die Gradienten-größen zu berücksichtigen, die ungleich Null sind.
+            a) Relevanz der Informationen: 
+                Gradientengrößen ungleich Null zeigen Bereiche im Bild mit Intensitätsänderungen an, 
+                    die typischerweise Kanten oder Grenzen entsprechen.
+            b) Lärmminderung: 
+                Pixel mit Nullgradienten treten in gleichmäßigen Bereichen ohne Intensitätsschwankungen auf. 
+                    Deren Aufnahme ins Histogramm würde unnötiges Rauschen erzeugen, 
+                    da sie keine nützlichen Informationen liefern.
+            c)Verbesserte Deskriptorqualität: 
+                Fokus auf nicht-null Gradienten macht den HOG-Deskriptor robuster und präziser.
+            d) Recheneffizienz: 
+                Ignorieren von Nullgradienten spart Rechenressourcen, da weniger Daten verarbeitet werden müssen.
+        """
+        #(hist, bins) = np.histogram(...)
+        hist, bins = np.histogram(sub_angle[sub_magnitude > 0], bins=8, range=(0, 360),
+                                  weights=sub_magnitude[sub_magnitude > 0])
+        # Plot histogram
+        #plot_histogram(hist, bins)
+
+        descr[count] = hist
+
+    return descr, hist, bins
+
+
+# 3) Create Keypoints:
+keypoints = [cv2.KeyPoint(15, 15, 11)]
+
+# 4) Applying the function to all test images:
+test_images = []
+for img_path in glob.glob('./images/hog_test/*.jpg'):
+    image = cv2.imread(img_path)
+    test_images.append(image)
+num_images = len(test_images)
+#
+plt.figure(figsize=(10, 7))
+plt.axis('off')
+for t_img in range(num_images):
+    test = test_images[t_img]
+    ttest = test
+    plt.subplot(1, 4, t_img + 1)
+    plt.imshow(cv2.cvtColor(test, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+    cv2.waitKey(0)
+    ttest = test
+    if test is None:
+        print("Bild konnte nicht geladen werden.")
+    else:
+        print(f"Test_Image{t_img + 1} read sucssesfully:")
+        descriptor = compute_simple_hog(ttest, keypoints)
+        print("Descriptor:", descriptor[0])
+        plt.subplot(4, 4, t_img+1)
+        plot_histogram(descriptor[1], descriptor[2])
+
+plt.show()
