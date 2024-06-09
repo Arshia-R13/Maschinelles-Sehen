@@ -1,0 +1,198 @@
+
+import numpy as np
+import cv2
+import glob
+import matplotlib.pyplot as plt
+from sklearn import svm
+
+
+############################################################
+#
+#              Support Vector Machine
+#              Image Classification
+#
+############################################################
+
+
+# 1. Implement a SIFT feature extraction for a set of training images ./images/db/train/** (see 2.3 image retrieval)
+# use ~15x15 keypoints on each image with subwindow of 21px (diameter)
+
+# Function to extract SIFT features
+def extract_sift_features(image_path, num_keypoints=15):
+    bild = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    bild = cv2.resize(bild, (150, 150))
+    hog = cv2.HOGDescriptor()
+    sift = cv2.SIFT_create()
+    #keypoints = sift.detect(image, None)
+
+    # Limit the number of keypoints to ~15x15 = 225 keypoints
+    #keypoints = sorted(keypoints, key=lambda x: -x.response)[:num_keypoints]
+    #keypoints, descriptors = sift.compute(image, keypoints)
+    featuers = hog.compute(bild)
+
+    descriptors = featuers
+    #  Typically, for each keypoint, a 16x16 window around the keypoint is divided into a 4x4 grid of cells.
+    #  In each cell, an 8-bin histogram of gradient orientations is computed.
+    #  Therefore, each keypoint's descriptor has 4 × 4 × 8 = 128 entries
+
+    #print('shape',descriptors.shape)
+    if descriptors is None:
+        return np.zeros((num_keypoints, 128))
+    return descriptors
+
+
+# 2. each descriptor (set of features) need to be flattened in one vector
+# That means you need a X_train matrix containing a shape of (num_train_images, num_keypoints*num_entry_per_keypoint)
+# num_entry_per_keypoint = histogram orientations as talked about in class
+# You also need a y_train vector containing the labels encoded as integers
+
+
+Categories=['cars', 'faces', 'flowers']
+X_train = []
+y_train = []
+
+train_path = './images/db/train/**/*.jpg'
+#test_path = './images/db/test/*.jpg'
+for i , class_folder in enumerate(glob.glob('./images/db/train/*')):
+    for j, img_path in enumerate(glob.glob(class_folder + '/*.jpg') + glob.glob(class_folder + '/*.png')):
+        #image = cv2.imread(img_path)
+        #if image is not None:
+        #    print(f'image {j} read sucssesfully!')
+
+        des = extract_sift_features(img_path)
+        #des = des.flatten()
+        des = np.array(des.flatten())
+        X_train.append(des)
+        #y_train.append(i)
+        y_train.append(Categories[i])
+        #cv2.imshow('output', image)
+        #cv2.waitKey(0)
+
+
+X_train = np.array(X_train)
+#X_train = np.matrix(X_train)
+###
+y_train = np.array(y_train)
+#y_train = np.matrix(y_train)
+#y_train_trans = np.matrix(y_train)
+#y_train = np.transpose(y_train_trans)
+###
+#y_train = np.matrix(y_train)
+#print('X_train:\n',X_train)
+
+
+########### test ############
+#print('X_train:\n',X_train)
+#print('y_train:\n',y_train)
+#############################
+
+
+
+# 3. We use scikit-learn to train a SVM classifier - however you need to test with different kernel options to get
+# good results for our dataset.
+
+######
+# The 'kernel' parameter of SVR must be a str among {'rbf', 'poly', 'sigmoid', 'linear', 'precomputed'}
+# Radial Basis Function : 'rbf'
+# 'Gaußsche Kernel-Radialbasisfunktion'--> 'mit zusätzlicher Radialbasismethode zur Verbesserung der Transformation.'
+# Polynomkernel: 'poly'
+# Sigmoidkernel: 'sigmoid'
+# Linearer Kernel: 'linear'
+# Precomputed matrix must be a square matrix.
+
+# Defining the parameters grid for GridSearchCV
+#param_grid={'C' : [ 0.7],                              # 'C' : [0.1, 0.5, 1, 10, 100]
+#            'gamma':[0.05],                            # 'gamma' : [0.0001, 0.001, 0.1, 1]
+#            'kernel':['poly']}                         # 'kernel': ['rbf' , 'poly', 'sigmoid' , 'linear']
+#cvc = cvm.SVC(probability=True)
+
+# Creating a model using GridSearchCV with the parameters grid
+#model=GridSearchCV(svc,param_grid)
+#######
+
+
+
+############### Validate the model #############
+
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+
+# Splitting the data into training and testing sets
+# X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+x , y = X_train, y_train
+
+X_train, x_val, y_train, y_val = train_test_split(x, y,test_size=0.20, random_state=77, stratify=y)
+
+
+
+
+# Creating a model as support vector classifier
+model = svm.SVC( kernel="poly", gamma=0.75, C=0.7, probability=True)
+
+model.fit(X_train, y_train)
+
+# Validate the model
+y_pred = model.predict(x_val)
+
+# Calculating the accuracy of the model
+accuracy = accuracy_score(y_pred, y_val)
+
+# Print the accuracy of the model
+#print(f"The model is {accuracy * 100}% accurate")
+
+
+# 4. We test on a variety of test images ./images/db/test/ by extracting an image descriptor
+# the same way we did for the training (except for a single image now) and use .predict()
+# to classify the image
+
+test_path = './images/db/test/*.jpg'
+
+# for t, ig_path in enumerate(glob.glob(train_path)):
+for t, ig_path in enumerate(glob.glob(test_path)):
+    image = cv2.imread(ig_path)
+    # if image is not None:
+    #    print(f'test_image {t} read sucssesfully!')
+    des = extract_sift_features(ig_path)
+    # des = des.flatten()
+    des = np.array(des.flatten())
+    l = [des]
+
+    ##### probability in each Categories: ################
+    """
+    probability=model.predict_proba(l)
+    print('\n')
+
+    for ind, val in enumerate(Categories):
+        print(f'{val} = {probability[0][ind] * 100}%')
+        #print("The predicted image is : " + Categories[model.predict(l)[0]])
+    
+    """
+
+    ###########################################
+    pred = model.predict(l)[0]
+    #print("\nThe predicted image is : ", pred)
+
+    images_paths = './images/db/train/' + str(pred) + '/'
+    # print('Paths = ', images_paths)
+
+    plt.figure(figsize=(15, 10))
+    plt.title(f"Result of test_image as {pred}")
+    plt.axis('off')
+
+
+
+# 5. output the class + corresponding name
+
+    for g, m_path in enumerate(glob.glob(images_paths + '*.jpg')):
+
+        img = cv2.imread(m_path)
+        plt.subplot(1, 10, g + 1)
+        plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        # plt.imshow(img, cmap= )
+        plt.axis('off')
+
+    plt.show()
+
+    pred = pred[0:-1]
+    cv2.imshow(f'test_img as {pred}', image)
+    cv2.waitKey(0)
