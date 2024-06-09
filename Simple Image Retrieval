@@ -1,0 +1,133 @@
+
+
+import cv2
+import glob
+import numpy as np
+import matplotlib.pyplot as plt
+from queue import PriorityQueue
+
+############################################################
+#
+#              Simple Image Retrieval
+#
+############################################################
+
+
+# implement distance function
+def distance(descriptor1, descriptor2):
+    return np.linalg.norm(descriptor1 - descriptor2)
+
+
+####
+#implement create_keypoints function:
+def create_keypoints(image):
+    keypoints = []
+    grid_size = 30
+    keypointsize = 25
+    step_x = image.shape[0] // grid_size
+    step_y = image.shape[1] // grid_size
+    for y in range(0, image.shape[1], step_y):
+        for x in range(0, image.shape[0], step_x):
+            keypoints.append(cv2.KeyPoint(x, y, keypointsize))
+    return keypoints
+###
+
+###
+# implement compute_sift_descriptors function:
+def compute_sift_descriptors(image, keypoints):
+    sift = cv2.SIFT_create()
+    keypoints, descriptors = sift.compute(image, keypoints)
+    return keypoints, descriptors
+###
+
+###
+# implement compare_images function:
+def compare_images(image_descriptors, query_descriptors):
+    distances = []
+    for descriptors in image_descriptors:
+        if descriptors is not None and query_descriptors is not None:
+            dist = np.mean([distance(d1, d2) for d1, d2 in zip(descriptors, query_descriptors)])
+            distances.append(dist)
+    return distances
+###
+
+
+# 1. preprocessing and load
+# images = glob.glob('./images/db/train/*/*.jpg')
+database_images = []
+for class_folder in glob.glob('./db/train/*'):
+    for image_path in glob.glob(class_folder + '/*.jpg') + glob.glob(class_folder + '/*.png'):
+        image = cv2.imread(image_path)
+        database_images.append(image)
+num_images = len(database_images) + 1
+
+# 2. create keypoints on a regular grid (cv2.KeyPoint(r, c, keypointSize), as keypoint size use e.g. 11)
+for image in database_images:
+    keypoints = create_keypoints(image)
+
+# 3. use the keypoints for each image and compute SIFT descriptors
+#    for each keypoint. this compute one descriptor for each image.
+descriptors = []
+for image in database_images:
+    kp, des = compute_sift_descriptors(image, keypoints)
+    descriptors.append(des)
+
+# 4. use one of the query input image to query the 'image database' that
+#    now compress to a single area. Therefore extract the descriptor and
+#    compare the descriptor to each image in the database using the L2-norm
+#    and save the result into a priority queue (q = PriorityQueue())
+
+# Load and process query image
+test_path = "./db/test/"
+test_images = []
+images_paths = glob.glob(test_path + "*.jpg") + glob.glob(test_path + "*.png")
+file_name = []
+for img, image_path in enumerate(images_paths):
+    #file_name = ["car", "face", "flower1", "flower2"]
+    img_path = image_path.replace('./db/test\\','test/')
+    file_name.append(img_path)
+    t_img = cv2.imread(image_path)
+    test_images.append(t_img)
+
+# 5. output (save and/or display) the query results in the order of smallest distance
+
+### TEST TEST_IMAGE LOADING ######
+# Überprüfen, ob Bilddateien gefunden wurden
+if len(test_images) == 0:
+    print("Keine Bilddateien im Ordner gefunden.")
+else:
+    for i in range(len(test_images)):
+        image = test_images[i]
+        scaling_factor = 1.5
+        image = cv2.resize(image, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+        if image is None:
+            print("Error while reading Images!!!")
+        else:
+            print(f"Test_Image{i+1} read sucssesfully:")
+            plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            plt.title(f"{file_name[i]}")
+            plt.axis('off')
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+            query_image = test_images[i]
+            query_gray = cv2.cvtColor(query_image, cv2.COLOR_BGR2GRAY)
+            query_kp = create_keypoints(query_gray)
+            _, query_des = compute_sift_descriptors(query_gray, query_kp)
+
+            # Compare query image with all database images
+            distances = compare_images(descriptors, query_des)
+
+            # Get the indices of the closest images
+            sorted_indices = np.argsort(distances)
+
+            # Display the most similar images
+            plt.figure(figsize=(15, 10))
+            plt.title(f"Result of {file_name[i]}")
+            plt.axis('off')
+            for n in range(len(database_images)):  # Display top 20 similar images
+                plt.subplot(8, 10, n + 1)
+                plt.imshow(cv2.cvtColor(database_images[sorted_indices[n]], cv2.COLOR_BGR2RGB))
+                #plt.title(f"Result_of_{file_name[i]}")
+                plt.axis('off')
+        plt.show()
