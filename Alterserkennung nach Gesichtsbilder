@@ -1,111 +1,552 @@
+#%% md
+# Altersbestimmen
+## verwendete Methode:
+1. HOG: Merkmalserkennung
+2. SVM: Klassifikator
+    
+#%%
+# importen bibliotheken:
 import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
 import cv2
 import glob
-import matplotlib.pyplot as plt
 from sklearn import svm
-#from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
-from sklearn.metrics import mean_squared_error as mse
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error as mse     
 from sklearn.metrics import mean_absolute_error as mae
-from sklearn.metrics import root_mean_squared_error
+# from sklearn.metrics import root_mean_squared_error as rmse
 
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import StandardScaler, PolynomialFeatures
-from sklearn.linear_model import Ridge
-import warnings
+# face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-
-# In[3]:
-
-
-def extract_sift_features(image_path, num_keypoints=15):
-    bild = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+#%%
+# Funktions:
+def extract_swift_features(path):
+    bild = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     bild = cv2.resize(bild, (150, 150))
     hog = cv2.HOGDescriptor()
-
-
+    
     descriptors = hog.compute(bild, winStride=(64, 64))
-    #descriptors = hog.compute(bild)
-
-    # descriptors = featuers
-    #  Typically, for each keypoint, a 16x16 window around the keypoint is divided into a 4x4 grid of cells.
-    #  In each cell, an 8-bin histogram of gradient orientations is computed.
-    #  Therefore, each keypoint's descriptor has 4 × 4 × 8 = 128 entries
-
-    # print('shape',descriptors.shape)
-    if descriptors is None:
-        return np.zeros((num_keypoints, 128))
+    
     return descriptors
+#%%
+def Image_zu_Gruppe(lab):
+    lab = int(lab)
+    if lab <= 3:
+        Gruppe_A.append(img_path)
+    elif lab <= 6:
+        Gruppe_B.append(img_path)
+    elif lab <= 12:
+        Gruppe_C.append(img_path)
+    elif lab <= 17:
+        Gruppe_D.append(img_path)
+    elif lab <= 29:
+        Gruppe_E.append(img_path)
+    elif lab <= 49:
+        Gruppe_F.append(img_path)
+    elif lab <= 64:
+        Gruppe_G.append(img_path)
+    elif lab <= 79:
+        Gruppe_H.append(img_path)
+    elif lab <= 100:
+        Gruppe_I.append(img_path)
+    else:
+        Gruppe_J.append(img_path)
+    
+#%%
+def Alter_zu_Gruppe(lab):
+    lab = int(lab)
+    if lab <= 3:
+        G1 = 'Gruppe_A'
+        G2 = 1
+    elif lab <= 6:
+        G1 = 'Gruppe_B'
+        G2 = 2
+    elif lab <= 12:
+        G1 = 'Gruppe_C'
+        G2 = 3
+    elif lab <= 17:
+        G1 = 'Gruppe_D'
+        G2 = 4
+    elif lab <= 29:
+        G1 = 'Gruppe_E'
+        G2 = 5
+    elif lab <= 49:
+        G1 = 'Gruppe_F'
+        G2 = 6
+    elif lab <= 64:
+        G1 = 'Gruppe_G'
+        G2 = 7
+    elif lab <= 79:
+        G1 = 'Gruppe_H'
+        G2 = 8
+    elif lab <= 100:
+        G1 = 'Gruppe_I'
+        G2 = 9
+    else:
+        G1 = 'Gruppe_J'
+        G2 = 10
+        
+    return G1, G2
+
+    
+# Altersgruppen2 = ['1-3', '4-6', '7-12', '13-17', '18-24', '25-32', '33-45', '46-65', '66-79', '80-99', '100-120']
+def Alter_zu_Gruppe2(lab):
+    lab = int(lab)
+    if lab <= 3:
+        GG1 = 'Gruppe_A'
+        GG2 = 1
+        
+    elif lab <= 6:
+        GG1 = 'Gruppe_B'
+        GG2 = 2
+        
+    elif lab <= 12:
+        GG1 = 'Gruppe_C'
+        GG2 = 3
+        
+    elif lab <= 17:
+        GG1 = 'Gruppe_D'
+        GG2 = 4
+        
+    elif lab <= 24:
+        GG1 = 'Gruppe_E'
+        GG2 = 5
+        
+    elif lab <= 32:
+        GG1 = 'Gruppe_F'
+        GG2 = 6
+        
+    elif lab <= 45:
+        GG1 = 'Gruppe_G'
+        GG2 = 7
+        
+    elif lab <= 65:
+        GG1 = 'Gruppe_H'
+        GG2 = 8
+        
+    elif lab <= 79:
+        GG1 = 'Gruppe_I'
+        GG2 = 9
+        
+    elif lab <= 99:
+        GG1 = 'Gruppe_J'
+        GG2 = 10
+        
+    else:
+        GG1 = 'Gruppe_K'
+        GG2 = 11
+        
+    return GG1, GG2
+
+# def shortlable(Data):
+#     A,B,C,D,E,F,G,H,I,J = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+#     for lab in Data:
+#         if lab == 1:
+#             A += 1
+#         elif lab == 2:
+#             B += 1
+#         elif lab == 3:
+#             C += 1
+#         elif lab == 4:
+#             D += 1
+#         elif lab == 5:
+#             E += 1
+#         elif lab == 6:
+#             F += 1
+#         elif lab == 7:
+#             G += 1
+#         elif lab == 8:
+#             H += 1
+#         elif lab == 9:
+#             I += 1
+#         elif lab == 10:
+#             J += 1
+            
+#     return A,B,C,D,E,F,G,H,I,J    
+#%%
+# (1-3):A, (4-6):B, (7-12):C, (13-17):D, (18-29):E, (30-49):F, (50-64):G, (65-79):H, (80-100):I
+# Altersgruppen = ['1-3', '4-6', '7-12', '13-17', '18-29', '30-49', '50-64', '65-79', '80-100', '101-120']
+def label_zu_Gruppe(lab):
+    if lab == 1:
+        Grp = Altersgruppen[0]
+    elif lab == 2:
+        Grp = Altersgruppen[1]
+    elif lab == 3:
+        Grp = Altersgruppen[2]
+    elif lab == 4:
+        Grp = Altersgruppen[3]
+    elif lab == 5:
+        Grp = Altersgruppen[4]
+    elif lab == 6:
+        Grp = Altersgruppen[5]
+    elif lab == 7:
+        Grp = Altersgruppen[6]
+    elif lab == 8:
+        Grp = Altersgruppen[7]
+    elif lab == 9:
+        Grp = Altersgruppen[8]
+    elif lab == 10:
+        Grp = Altersgruppen[9]
+        
+    return (f'Das Alter ist: {Grp}')
 
 
-# In[11]:
+def label_zu_Gruppe2(lab):
+    if lab == 1:
+        Grp2 = Altersgruppen2[0]
+    elif lab == 2:
+        Grp2 = Altersgruppen2[1]
+    elif lab == 3:
+        Grp2 = Altersgruppen2[2]
+    elif lab == 4:
+        Grp2 = Altersgruppen2[3]
+    elif lab == 5:
+        Grp2 = Altersgruppen2[4]
+    elif lab == 6:
+        Grp2 = Altersgruppen2[5]
+    elif lab == 7:
+        Grp2 = Altersgruppen2[6]
+    elif lab == 8:
+        Grp2 = Altersgruppen2[7]
+    elif lab == 9:
+        Grp2 = Altersgruppen2[8]
+    elif lab == 10:
+        Grp2 = Altersgruppen2[9]
+    elif lab == 11:
+        Grp2 = Altersgruppen2[10]
+        
+    return (f'Das Alter ist: {Grp2}')
 
+#%%
+# definieren Variablen:
 
-X_data, y_data, filename = [], [], []
 class_folder = 'Dataset\\faces_02\\part3'
-#class_folder = 'Dataset_Metadata\\part1'
-for i, img_path in enumerate(glob.glob(class_folder + '\\*.jpg') + glob.glob(class_folder + '\\*.png')):
-    # image = cv2.imread(img_path)
-    # if image is not None:
-    #    print(f'image {j} read sucssesfully!')
 
-    # print(img_path)
-    des = extract_sift_features(img_path)
-    # lab = int(img_path.split('\\')[-1].split('_')[0])
-    lab = img_path.split('\\')[-1]
+Gruppe_A=[]
+Gruppe_B=[]
+Gruppe_C=[]
+Gruppe_D=[]
+Gruppe_E=[]
+Gruppe_F=[]
+Gruppe_G=[]
+Gruppe_H=[]
+Gruppe_I=[]
+Gruppe_J=[]
 
-    X_data.append(des)
-    y_data.append(lab)
-    # filename.append(img_path.split('\\')[-1])
-    # print(img_path.split('\\')[-1].split('_')[0])
-
-# print(filename[0])
-
-
-# In[12]:
-
-
-#print('X_data: ',np.array(X_data).shape, '\ny_data: ', np.array(y_data).shape)
-#print(y_data[0])
-
-# In[13]:
+Altersgruppen = ['1-3', '4-6', '7-12', '13-17', '18-29', '30-49', '50-64', '65-79', '80-100', '101-120']
+# (1-3):A, (4-6):B, (7-12):C, (13-17):D, (18-29):E, (30-49):F, (50-64):G, (65-79):H, (80-100):I, (101-120):J
+# A:Säuglinge und Kleinkinder (1-3 Jahre) 
+# B:Vorschulkinder (4-6 Jahre)
+# C:Schulkinder (7-12 Jahre)
+# D:Jugendliche (13-17 Jahre)
+# E:Junge Erwachsene (18-29 Jahre):
+# F:Erwachsene im mittleren Alter (30-49 Jahre)
+# G:Ältere Erwachsene (50-64 Jahre)
+# H:Senioren (65-79 Jahre)
+# I:Hochbetagte (80-100 Jahre)
+# J:Hochbetagte2 (101-120)
 
 
-#X_train, X_test, y_train, y_test = train_test_split(
-#    X_data, y_data, test_size=0.2, random_state=42)
+#%%
+Altersgruppen2 = ['1-3', '4-6', '7-12', '13-17', '18-24', '25-32', '33-45', '46-65', '66-79', '80-99', '100-120']
+# (1-3):A, (4-6):B, (7-12):C, (13-17):D, (18-24):E, (25-32):F, (33-45):G, (46-65):H, (66-79):I, (80-99):J, (100-120):K
+# A:Säuglinge und Kleinkinder (1-3 Jahre) 
+# B:Vorschulkinder (4-6 Jahre)
+# C:Schulkinder (7-12 Jahre)
+# D:Jugendliche (13-17 Jahre)
+# E:Erwachsene Jugendliche (18-24 Jahre):
+# F:Junge Erwachsene (25-32 Jahre)
+# G:Erwachsene im mittleren Alter (33-45 Jahre)
+# H:Ältere Erwachsene (46-65 Jahre)
+# I:Senioren (66-79 Jahre)
+# J:Hochbetagte (80-99)
+# K:Ältere Hochbetagte (101-120)
+#%%
+# Altersgruppe = {'A':'1-3', 'B':'4-6', 'C':'7-12', 'D':'13-17', 'E':'18-29', 'F':'30-49', 'G':'50-64', 'H':'65-79', 'I':'80-100', 'J': '101-120'}
+# keys, values = [], []
+# for key in Altersgruppe.keys():
+#     keys.append(key)
+# print('keys: ', keys)
+# for value in Altersgruppe.values():
+#     values.append(value)
+# print('values: ', values)
+# for value in values:
+#     print(value.split('-')[-1])
+#%%
+# import dataset:
+i = 0
+for img_path in glob.glob(class_folder + '\\*.jpg') + glob.glob(class_folder + '\\*.png'):
+    i += 1
+    lable = img_path.split('\\')[-1].split('_')[0]
+    Image_zu_Gruppe(lable)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X_data, y_data, test_size=0.2, random_state=77)
-print('X_data: ',np.array(X_data).shape, '\ny_data: ', np.array(y_data).shape)
-print('X_train: ', np.array(X_train).shape, '\ny_train: ', np.array(y_train).shape)
+# print('Gruppe_A:',len(Gruppe_A))
+# print('Gruppe_B:',len(Gruppe_B))
+# print('Gruppe_C:',len(Gruppe_C))
+# print('Gruppe_D:',len(Gruppe_D))
+# print('Gruppe_E:',len(Gruppe_E))
+
+# print('Gruppe_F:',len(Gruppe_F))
+# print('Gruppe_G:',len(Gruppe_G))
+# print('Gruppe_H:',len(Gruppe_H))
+# print('Gruppe_I:',len(Gruppe_I))
+# print('Gruppe_J:',len(Gruppe_J))
+
+# print('\n\nAnzahl_Bilder: ',i)
+
+#%%
+# plt.subplot(2, 2, 1)
+Gruppe = Gruppe_A
+for i, path in enumerate(Gruppe):
+    plt.subplot(int(len(Gruppe)/2), 2, i+1)
+    img = cv2.imread(path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    plt.imshow(img)
+    plt.axis('off') 
+
+plt.show()
+    
+#%%
+# for i, path in enumerate(Gruppe_C):
+#     plt.subplot(2, 6, i+1)
+#     img = cv2.imread(path)
+#     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+#     plt.imshow(img)
+#     plt.axis('off') 
+
+# plt.show()
+
+#%%
+# Erzeugen Daten zum Model:
+X_data, y_data, y_data2, y_data3 = [], [], [], []
+y_data1 = []
+for img_path in glob.glob(class_folder + '\\*.jpg') + glob.glob(class_folder + '\\*.png'):
+    Alter = img_path.split('\\')[-1].split('_')[0]
+    des = extract_swift_features(img_path)
+    lab1, lab2 = Alter_zu_Gruppe(Alter)
+    Lab1, Lab2 = Alter_zu_Gruppe2(Alter)
+    
+    
+    X_data.append(des)           # X_data : alle Descriptors von den Bilders
+    y_data.append(Alter)         # y_data : das Jahr von jedem Person
+
+    # y_data1.append(lab1)         # y_data1 : Gruppen für Regression
+    y_data2.append(lab2)         # y_data2 : Klassifikation1=lable (1-10) foer jede Gruppe(A-J)
+
+    #y_data3.append(Lab2)         # y_data2 : Klassifikation2=lable (1-11) foer jede Gruppe(A-K)
+    
+    
+#%%
+print('\nX_data: ', np.array(X_data).shape)
+print('\ny_data: ', np.array(y_data).shape)
+
+# print('\n\ny_data1: ', np.array(y_data1).shape)
+print('\ny_data2: ', np.array(y_data2).shape)
+#print('\ny_data3: ', np.array(y_data3).shape)
+
+#%% md
+# X_train, X_test, y_train, y_test:
+
+####  test_size         : float or int,      default=None
+####  train_size        : float or int,      default=None
+####  random_state : int, RandomState instance or None, default=None
+####  shuffle             : default=True
+
+#%%
+### Train_Data:
+# train_test_split(test_size, train_size, random_state, shuffle, stratify, *arrays)
+# X, y, y2, y3 = X_data, y_data, y_data2, y_data3
+X, y, y2 = X_data, y_data, y_data2
+
+### Regression
+X_train1, X_test1, y_train1, y_test1 = train_test_split(X, y, test_size=0.2, train_size=None, random_state=77)
+
+### Klassifikation mit ersten Gruppen(10 Gruppen)
+X_train2, X_test2, y_train2, y_test2 = train_test_split(X, y2, test_size=0.2, train_size=None, random_state=77)
+
+### Klassifikation mit zweiten Gruppen(11 Gruppen)
+#X_train3, X_test3, y_train3, y_test3 = train_test_split(X, y3, test_size=0.2, train_size=None, random_state=77)
+
+#%%
+y_test = [int(x.split('_')[0]) for x in y_test1]
+#%%
+# display data-size:
+print('\nX_data: ',np.array(X_data).shape, '\ny_data: ', np.array(y_data).shape, '\ny_data2:', np.array(y_data).shape)
+
+### Regression:
+print('\nX_train1:',np.array(X_train1).shape, '\nX_test1:', np.array(X_test1).shape)
+print('\ny_train1:',np.array(y_train1).shape, '\ny_test1:', np.array(y_test1).shape, '\ny_test:', np.array(y_test).shape)
+
+### Klassifikation1:
+print('\n\nX_train2:',np.array(X_train2).shape, '\nX_test2:', np.array(X_test2).shape)
+print('\ny_train2:',  np.array(y_train2).shape, '\ny_test2:', np.array(y_test2).shape)
+
+### Klassifikation2:
+#print('\n\nX_train3:',np.array(X_train3).shape, '\nX_test3:', np.array(X_test3).shape)
+#print('\ny_train3:',  np.array(y_train3).shape, '\ny_test3:', np.array(y_test3).shape)
+
+#%%
+# Aufbaen des Models:
+# C : [0.1, 0.5, 1, 10, 100]                                --> 0.77,   0.75,   0.70
+# gamma : [0.0001, 0.001, 0.1, 1]                           --> 0.88,   0.85,   0.80
+# kernel: ['rbf' , 'poly', 'sigmoid' , 'linear']            --> 'poly', 'poly', 'poly'
+model1 = SVR(C=0.70, gamma=0.80, kernel="poly")
+model2 = SVR(C=0.70, gamma=0.80, kernel="poly")
+#model3 = SVR(C=0.70, gamma=0.80, kernel="poly")
+
+# model3 = SVR(C=0.70, gamma=0.80, kernel="poly")
+
+# model1 = SVR(C=0.70, gamma=0.80, kernel='poly')
+# model2 = SVR(C=0.60, gamma=0.70, kernel="poly")
+# model3 = SVR(C=0.50, gamma=0.60, kernel="poly")
+# model4 = SVR(C=0.70, gamma=0.80, kernel="rbf")
+#%%
+# Trainen:
+### Regression:
+# model1.fit(X_train1, y_train1)
+
+model1.fit(X_train1, y_train1)     # Regression
+
+model2.fit(X_train2, y_train2)     # Klassifikation
+#model3.fit(X_train3, y_train3)
+
+# model4.fit(X_train2, y_train2)
+
+#################
+## Predection: ##
+#################
+### Regression:
+y_pred1 = model1.predict(X_test1)
+
+### Klassifikation:
+y_pred2 = model2.predict(X_test2)
 
 
-# In[ ]:
-# 'C' : [0.1, 0.5, 1, 10, 100]
-# 'gamma' : [0.0001, 0.001, 0.1, 1]
-# 'kernel': ['rbf' , 'poly', 'sigmoid' , 'linear']
-# model = SVR(kernel="linear", gamma=0.001, C=0.1)
-# model = SVR(kernel="poly", gamma=0.1, C=0.5)
-# model = SVR(kernel="rbf", gamma=1.0, C=1.0)
-model = SVR(C=0.77, gamma=0.85, kernel="poly")
+#%%
+###############################################################################################
+####  Genauigkeit und Fehler:  MSE='mean_squared_error'  und   MAE='mean_absolute_error'   ####
+###############################################################################################
+
+### Regression:
+Error_MSE_1 = mse(y_test, y_pred1)
+Error_MAE_1 = mae(y_test, y_pred1)
 
 
-y_train2 = [int(x.split('_')[0]) for x in y_train]
+### Klassifikation: 
+Error_MSE_2 = mse(y_test2, y_pred2)
+Error_MAE_2 = mae(y_test2, y_pred2)
 
-model.fit(X_train, y_train2)
+### 
+# Error_MSE_3 = mse(y_test2, y_pred3)
+#Error_MAE_3 = mae(y_test3, y_pred3)
+###
+#%%
+# print(f'MSE1: {error1} \nMAE1: {error2}')
+
+print(f'MS-Error Regression: {Error_MSE_1} \nMA-Error Regression: {Error_MAE_1}\n\n')
+
+print(f'MS-Error Klassifikation: {Error_MSE_2} \nMA-Error Klassifikation: {Error_MAE_2}\n\n')
+
+# print(f'Error_MSE_3: {Error_MSE_3} \nError_MAE_3: {Error_MAE_3}\n\n')
 
 
-# In[ ]:
+# print(f'Error_MAE_1: {Error_MAE_1}\n\n')
+# print(f'Error_MAE_2: {Error_MAE_2}\n\n')
 
-y_pred = model.predict(X_test)
+#print(f'Error_MAE_3: {Error_MAE_3}\n\n')
 
-y_test2 = [int(x.split('_')[0]) for x in y_test]
+#%% md
+# Analysieren die Ergebnisse:
+## 1) Error, wie gross, warum? mögliche Gruende: Bilder(Abstand, Rautsch, Sonnenbrille, Bild in Bilder oder mehrer Personen)
+## 2) Bilder mit grosse Fehler, 5-10 Bilder, analysieren
+## 3) mögliche Verbesserung:
+### a) Klassifikatin(Alterzeitraum, keine Erfolg)
+### b) GesichtErkennung und dann trainieren
+### c) Normalasation der Bilder
+### d) verbessere Auflösung der Bilder, Size und soweiter
 
-#error1 = mse(y_test2, y_pred, squared=False)
-error1 = root_mean_squared_error(y_test2, y_pred)
-error2 = mae(y_test2, y_pred)
+#%%
 
-print('y_test: ', y_test[:10], '\ny_pred: ', y_pred[:10])
-print('Mean_Squared_Error: ', error1)
-print('Mean_Absolute_Error: ', error2)
+# if Error_MAE_2 < Error_MAE_1:
+#     MODEL = model2
+# elif Error_MAE_3 < Error_MAE_1:
+#     MODEL = model3
+# else:
+#     MODEL = modle1
+# print(MODEL)
+MODEL2 = model2
+# if Error_MAE_2 < Error_MAE_3:
+#     MODEL2 = model2
+# elif Error_MAE_3 <= Error_MAE_2:
+#     MODEL2 = model3
+
+print(MODEL2)
+
+#%%
+# path_Test = "Dataset\\test"
+p_Test = "Dataset\\test\\Test_img.jpg"
+des_T, Test_D, Test_p = [], [], []
+des_T = extract_swift_features(p_Test)
+Test_D.append(des_T)
+# Test_p = model3.predict(Test_D)
+# Test_p = MODEL.predict(Test_D)
+Test_p = MODEL2.predict(Test_D)
+Test_pp = Test_p.astype(int)
+# Test_ppp = np.round(Test_p).astype(int)
+# print(Test_p, type(Test_p), Test_pp, type(Test_pp))
+# Pred = np.round(int(Test_p))
+Gruppe = label_zu_Gruppe(Test_pp[0])
+bild = cv2.imread(p_Test)
+bild = cv2.cvtColor(bild, cv2.COLOR_BGR2RGB)
+plt.imshow(bild)
+plt.axis('off')
+plt.show()
+# bild = cv2.cvtColor(bild, cv2.COLOR_BGR2RGB)
+print(f'{Gruppe}')
+
+Test_prg = model1.predict(Test_D)
+print(Test_prg)
+
+#%%
+# class_folder = 'Dataset\\faces_02\\part3'
+Test_Ordner = 'Dataset\\test\\Test_Data'
+T_preds = []
+for i,Test_P in enumerate(glob.glob(Test_Ordner + '\\*.jpg')):
+#     print(Test_P.split('\\')[-1].split('.')[0])
+    plt.subplot(8, 2, i+1)
+    img = cv2.imread(Test_P)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    plt.imshow(img)
+    plt.axis('off')
+    plt.show()
+    Test_data, Des_T, T_pred = [], [], []
+    Des_T = extract_swift_features(Test_P)
+    Test_data.append(Des_T)
+    # T_pred = model3.predict(Test_data)
+    # T_pred = MODEL.predict(Test_data)
+    T_pred = MODEL2.predict(Test_data)
+#     print(T_pred)
+    T_pred = T_pred.astype(int)
+#     print(T_pred)
+    Gruppe = label_zu_Gruppe(T_pred)
+    print(Gruppe)
+    T_preds.append(T_pred)
+
+    #####
+    T_pred = model1.predict(Test_data)
+    print(T_pred)
+
+
+# des_T = extract_swift_features(p_Test)
+# Test_D.append(des_T)
+# Test_p = model2.predict(Test_D)
+# print(Test_p)
+# print(T_preds is not None)
+
+# for p in T_preds:
+#     gruppe = p.astype(int)
+#     Gruppe1 = label_zu_Gruppe(p)
+#     Gruppe2 = label_zu_Gruppe(gruppe)
+#     print(Gruppe1)
